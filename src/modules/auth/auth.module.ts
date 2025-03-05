@@ -9,6 +9,7 @@ import { AuthEntity } from './auth.entity';
 import { UserModule } from '../users/user.module';
 import { AccessTokenStrategy } from './strategies/jwt-access.strategy';
 import { RefreshTokenStrategy } from './strategies/jwt-refresh.strategy';
+import { EmailJSModule } from 'src/services/emailjs/emailjs.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RefreshTokenStrategy } from './strategies/jwt-refresh.strategy';
       }),
       inject: [ConfigService],
     }),
+    EmailJSModule,
     UserModule,
   ],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy, Logger],

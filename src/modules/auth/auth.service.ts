@@ -1,3 +1,4 @@
+import { EmailJSService } from './../../services/emailjs/emailjs.service';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from './../users/user.service';
 import {
@@ -17,6 +18,8 @@ import { UserEntity } from '../users/user.entity';
 import { withTransaction } from 'src/common';
 import { BuildRegistrationTokenDto, LoginDto } from './dto';
 import * as crypto from 'crypto';
+import { EMAIL_TEMPLATES } from 'src/services/emailjs/templates';
+import { SendVerificationEmailData } from 'src/services/emailjs/types/emails.types';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +31,7 @@ export class AuthService {
     private readonly datasource: DataSource,
     private readonly configService: ConfigService,
     private readonly logger: Logger,
+    private readonly emailService: EmailJSService,
   ) {
     this.logger = new Logger(AuthService.name);
   }
@@ -83,14 +87,17 @@ export class AuthService {
         throw new BadRequestException('Unable to create user');
       }
 
+      const tokens = await this.generateTokens(user);
+      const hashedRefreshToken = await this.hashData(tokens.refreshToken);
+
       const credentials = this.credentialsRepository.create({
         userId: user.id,
         password: password,
+        refreshToken: hashedRefreshToken,
+        refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       });
       await queryRunner.manager.save(AuthEntity, credentials);
 
-      const tokens = await this.generateTokens(user);
-      await this.updateRefreshToken(user.id, tokens.refreshToken);
       return tokens;
     });
   }
@@ -132,6 +139,15 @@ export class AuthService {
         expiresIn: '15m',
       },
     );
+
+    await this.emailService.send<SendVerificationEmailData>({
+      templateId: EMAIL_TEMPLATES.VERIFY_EMAIL,
+      templateData: {
+        verification_code: verifyCode,
+        username: rest.userName,
+        to_email: email,
+      },
+    });
 
     return registrationToken;
   }
