@@ -11,9 +11,7 @@ export class UserController {
 
   @UseGuards(AccessTokenGuard)
   @Get('me')
-  getMe(@CurrentUser() user: ContextUser): GetMeRequest {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, email, avatarColor, about, displayName, ...rest } = user;
-    return { id, email, avatarColor, about, displayName };
+  async getMe(@CurrentUser() user: ContextUser): Promise<GetMeRequest> {
+    return this.userService.getMe(user.sub);
   }
 }

@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Transactional } from 'src/common/types';
+import { GetMeRequest } from './users.contracts';
 
 @Injectable()
 export class UserService {
@@ -12,6 +13,19 @@ export class UserService {
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
   ) {}
+
+  async getMe(id: string): Promise<GetMeRequest> {
+    return this.usersRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        displayName: true,
+        avatarColor: true,
+        about: true,
+        email: true,
+      },
+    });
+  }
 
   async findBy(
     data: FindOptionsWhere<UserEntity>,

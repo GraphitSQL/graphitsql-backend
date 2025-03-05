@@ -7,9 +7,12 @@ import { AuthModule } from './modules/auth/auth.module';
 import svcConfig from './config/svc.config';
 import { UserModule } from './modules/users/user.module';
 import dbConfig from 'db/config/db-config';
+import { HttpModule } from '@nestjs/axios';
+import { EmailJSModule } from './services/emailjs/emailjs.module';
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
@@ -22,6 +25,7 @@ import dbConfig from 'db/config/db-config';
       useFactory: (configService: ConfigService<{ database: TypeOrmModuleOptions }, true>) =>
         configService.get('database'),
     }),
+    EmailJSModule,
     UserModule,
     AuthModule,
   ],
