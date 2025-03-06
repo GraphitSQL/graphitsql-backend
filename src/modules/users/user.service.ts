@@ -3,15 +3,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UserEntity } from './user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
 import { Transactional } from 'src/common/types';
 import { GetMeRequest } from './users.contracts';
+import { getRepository } from 'src/common/helpers';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
+    private readonly datasource: DataSource,
   ) {}
 
   async getMe(id: string): Promise<GetMeRequest> {
@@ -31,23 +33,17 @@ export class UserService {
     data: FindOptionsWhere<UserEntity>,
     { queryRunner: activeQueryRunner }: Transactional = {},
   ): Promise<UserEntity | null> {
-    if (activeQueryRunner?.manager) {
-      return activeQueryRunner?.manager.findOneBy(UserEntity, data);
-    } else {
-      return this.usersRepository.findOneBy(data);
-    }
+    const userRepository = getRepository(activeQueryRunner ?? this.datasource, UserEntity);
+
+    return userRepository.findOneBy(data);
   }
 
   async createUser(
     data: Partial<UserEntity>,
     { queryRunner: activeQueryRunner }: Transactional = {},
   ): Promise<UserEntity | null> {
-    const userData = this.usersRepository.create(data);
-
-    if (activeQueryRunner?.manager) {
-      return activeQueryRunner?.manager.save(UserEntity, userData);
-    } else {
-      return this.usersRepository.save(userData);
-    }
+    const userRepository = getRepository(activeQueryRunner ?? this.datasource, UserEntity);
+    const userData = userRepository.create(data);
+    return this.usersRepository.save(userData);
   }
 }

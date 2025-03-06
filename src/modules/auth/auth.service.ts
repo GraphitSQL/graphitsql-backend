@@ -15,7 +15,7 @@ import { DataSource, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AuthEntity } from './auth.entity';
 import { UserEntity } from '../users/user.entity';
-import { withTransaction } from 'src/common';
+import { withTransaction } from 'src/common/helpers';
 import { BuildRegistrationTokenDto, LoginDto } from './dto';
 import * as crypto from 'crypto';
 import { EMAIL_TEMPLATES } from 'src/services/emailjs/templates';
