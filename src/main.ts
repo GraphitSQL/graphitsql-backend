@@ -4,7 +4,7 @@ import { LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const logLevels: LogLevel[] = ['error', 'warn', 'log', 'verbose'];
 
   if (process.env.NODE_ENV === 'development') {
