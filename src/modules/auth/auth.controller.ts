@@ -9,6 +9,7 @@ import {
   Res,
   Logger,
   HttpCode,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -28,8 +29,10 @@ import {
 } from './auth.contracts';
 import { CurrentUser } from 'src/common/decorators';
 import { ContextUser } from 'src/common/types';
+import { ErrorsInterceptor } from 'src/common/interceptors';
 
 @Controller('auth')
+@UseInterceptors(ErrorsInterceptor)
 export class AuthController {
   constructor(
     private authService: AuthService,

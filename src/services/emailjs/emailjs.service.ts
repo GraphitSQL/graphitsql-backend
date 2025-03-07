@@ -11,6 +11,8 @@ export class EmailJSService {
   private readonly EMAIL_LINK = 'https://api.emailjs.com/api/v1.0/email/send';
   private readonly ACCESS_TOKEN: string;
 
+  private readonly NODE_ENV: string;
+
   constructor(
     private readonly logger: Logger,
     readonly configService: ConfigService,
@@ -19,9 +21,15 @@ export class EmailJSService {
     this.SERVICE_ID = configService.get<string>('service.emailjs.serviceId');
     this.USER_ID = configService.get<string>('service.emailjs.userId');
     this.ACCESS_TOKEN = configService.get<string>('service.emailjs.token');
+    this.NODE_ENV = configService.get<string>('service.appEnv');
   }
 
   async send<T>({ templateId, templateData }: { templateId: EMAIL_TEMPLATES; templateData: T }): Promise<void> {
+    // TODO - uncomment later
+    if (this.NODE_ENV === 'development') {
+      return;
+    }
+
     try {
       const payload = {
         service_id: this.SERVICE_ID,

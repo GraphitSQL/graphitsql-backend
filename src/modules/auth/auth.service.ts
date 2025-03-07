@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AuthEntity } from './auth.entity';
 import { UserEntity } from '../users/user.entity';
@@ -102,7 +102,10 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, refreshToken: string) {
-    const credentials = await this.credentialsRepository.findOne({ where: { userId }, relations: ['user'] });
+    const credentials = await this.credentialsRepository.findOne({
+      where: { userId, user: { deletedAt: IsNull() } },
+      relations: ['user'],
+    });
     if (!credentials || !credentials.refreshToken) throw new UnauthorizedException('Unauthorized');
 
     const refreshTokenMatches = await bcrypt.compare(refreshToken, credentials.refreshToken);
@@ -179,7 +182,7 @@ export class AuthService {
 
   private async validateUser(email: string, password: string): Promise<UserEntity> {
     const credentials = await this.credentialsRepository.findOne({
-      where: { user: { email } },
+      where: { user: { email, deletedAt: IsNull() } },
       relations: ['user'],
     });
 
