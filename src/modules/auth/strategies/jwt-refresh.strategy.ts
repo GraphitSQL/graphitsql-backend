@@ -8,7 +8,12 @@ import { Request } from 'express';
 export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => {
+          const token = req.get('Refresh');
+          return token ? token : null;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow<string>('service.jwt.secret'),
       passReqToCallback: true,
@@ -16,7 +21,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
   }
 
   validate(req: Request, payload: any) {
-    const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
+    const refreshToken = req.get('Refresh').replace('Bearer', '').trim();
     return { ...payload, refreshToken };
   }
 }
