@@ -93,8 +93,6 @@ CREATE TABLE public.user_credentials (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_id uuid NOT NULL,
     password text NOT NULL,
-    refresh_token text,
-    refresh_token_expires_at timestamp without time zone,
     created_at timestamp(3) with time zone DEFAULT now() NOT NULL,
     updated_at timestamp(3) with time zone DEFAULT now() NOT NULL,
     deleted_at timestamp(3) with time zone

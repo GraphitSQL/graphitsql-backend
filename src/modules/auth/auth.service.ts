@@ -7,6 +7,7 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -51,7 +52,6 @@ export class AuthService {
       { userId },
       {
         refreshToken: null,
-        refreshTokenExpiresAt: null,
       },
     );
 
@@ -94,7 +94,6 @@ export class AuthService {
         userId: user.id,
         password: password,
         refreshToken: hashedRefreshToken,
-        refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       });
       await queryRunner.manager.save(AuthEntity, credentials);
 
@@ -160,6 +159,22 @@ export class AuthService {
     return this.buildRegistrationToken({ email, password, avatarColor, userName });
   }
 
+  async changePassword(password: string, userId: string) {
+    const hashedPassword = await this.hashData(password);
+    const creadentials = await this.credentialsRepository.findBy({ userId });
+
+    if (!creadentials) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.credentialsRepository.update(
+      { userId },
+      {
+        password: hashedPassword,
+      },
+    );
+  }
+
   // Helpers
 
   private async validateUser(email: string, password: string): Promise<UserEntity> {
@@ -207,7 +222,6 @@ export class AuthService {
       { userId },
       {
         refreshToken: hashedRefreshToken,
-        refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     );
   }

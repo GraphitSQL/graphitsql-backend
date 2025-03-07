@@ -23,9 +23,6 @@ export class AuthEntity {
   @Column({ nullable: true })
   refreshToken: string;
 
-  @Column({ nullable: true })
-  refreshTokenExpiresAt: Date;
-
   @CreateDateColumn()
   createdAt: Date;
 

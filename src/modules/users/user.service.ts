@@ -16,6 +16,7 @@ export class UserService {
     private readonly datasource: DataSource,
   ) {}
 
+  //Request handlers
   async getMe(id: string): Promise<GetMeRequest> {
     return this.usersRepository.findOne({
       where: { id },
@@ -28,6 +29,8 @@ export class UserService {
       },
     });
   }
+
+  // Utils
 
   async findBy(
     data: FindOptionsWhere<UserEntity>,

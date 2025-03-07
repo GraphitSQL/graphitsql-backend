@@ -55,11 +55,6 @@ export class CreateUserAndUserCredentials1741112376074 implements MigrationInter
             type: 'text',
             isNullable: true,
           },
-          {
-            name: 'refresh_token_expires_at',
-            type: 'timestamp',
-            isNullable: true,
-          },
           ...timestampts,
         ],
       }),

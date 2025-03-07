@@ -1,10 +1,22 @@
-import { Controller, Post, Body, UseGuards, Req, Get, UnauthorizedException, Res, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Get,
+  UnauthorizedException,
+  Res,
+  Logger,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { AccessTokenGuard } from '../../common/guards/access-token.guard';
 import { RefreshTokenGuard } from '../../common/guards/refresh-token.guard';
 
 import {
+  ChangePasswordRequest,
   GetTokenForRegistrationRequest,
   GetTokenForRegistrationResponse,
   LoginRequest,
@@ -14,6 +26,8 @@ import {
   RegisterResponse,
   ResendVerificationCodeResponse,
 } from './auth.contracts';
+import { CurrentUser } from 'src/common/decorators';
+import { ContextUser } from 'src/common/types';
 
 @Controller('auth')
 export class AuthController {
@@ -56,6 +70,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() payload: LoginRequest): Promise<LoginResponse> {
     return this.authService.login(payload);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Post('change-password')
+  @HttpCode(200)
+  async changePassword(@Body() payload: ChangePasswordRequest, @CurrentUser() user: ContextUser): Promise<void> {
+    await this.authService.changePassword(payload.newPassword, user.sub);
   }
 
   @UseGuards(AccessTokenGuard)

@@ -19,3 +19,7 @@ export type RegisterResponse = AccessRefreshTokens;
 export type RefreshResponse = AccessRefreshTokens;
 
 export type ResendVerificationCodeResponse = string;
+
+export type ChangePasswordRequest = {
+  newPassword: string;
+};
