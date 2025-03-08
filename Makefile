@@ -20,6 +20,9 @@ build:
 app:
 	docker-compose up app -d
 
+restart-app:
+	docker-compose up app -d --force-recreate
+	
 sh:
 	${DOCKER_COMPOSE_RUN} app /bin/sh
 
