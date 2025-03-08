@@ -9,6 +9,7 @@ import {
   Res,
   Logger,
   HttpCode,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -27,9 +28,11 @@ import {
   ResendVerificationCodeResponse,
 } from './auth.contracts';
 import { CurrentUser } from 'src/common/decorators';
-import { ContextUser } from 'src/common/types';
+import { ContextUser, RequestResult } from 'src/common/types';
+import { ErrorsInterceptor } from 'src/common/interceptors';
 
 @Controller('auth')
+@UseInterceptors(ErrorsInterceptor)
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -75,8 +78,13 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   @Post('change-password')
   @HttpCode(200)
-  async changePassword(@Body() payload: ChangePasswordRequest, @CurrentUser() user: ContextUser): Promise<void> {
+  async changePassword(
+    @Body() payload: ChangePasswordRequest,
+    @CurrentUser() user: ContextUser,
+  ): Promise<RequestResult> {
     await this.authService.changePassword(payload.newPassword, user.sub);
+
+    return 'OK';
   }
 
   @UseGuards(AccessTokenGuard)

@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { LogLevel } from '@nestjs/common';
+import { LogLevel, ValidationError, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ValidationFailedError } from './common/errors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -12,6 +13,15 @@ async function bootstrap() {
   }
 
   app.useLogger(logLevels);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (validationErrors: ValidationError[] = []) => new ValidationFailedError(validationErrors),
+    }),
+  );
+
   const configService = app.get<ConfigService>(ConfigService);
   const APP_PORT = configService.getOrThrow('service.appPort');
 

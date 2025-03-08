@@ -2,6 +2,7 @@ import { registerAs } from '@nestjs/config';
 
 const getConfig = () => ({
   appPort: process.env.APP_PORT,
+  appEnv: process.env.NODE_ENV,
   jwt: {
     secret: process.env.JWT_SECRET,
     accessExpires: process.env.JWT_ACCESS_EXPIRES,

@@ -1,4 +1,4 @@
-import { IsDefined, IsEmail, IsOptional } from 'class-validator';
+import { IsDefined, IsEmail, IsOptional, MaxLength } from 'class-validator';
 
 export class BuildRegistrationTokenDto {
   @IsDefined()
@@ -9,6 +9,7 @@ export class BuildRegistrationTokenDto {
   public password: string;
 
   @IsDefined()
+  @MaxLength(250)
   public userName: string;
 
   @IsOptional()

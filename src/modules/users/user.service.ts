@@ -3,10 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UserEntity } from './user.entity';
-import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, Repository, UpdateResult } from 'typeorm';
 import { Transactional } from 'src/common/types';
-import { GetMeRequest } from './users.contracts';
+import { GetMeResponse } from './users.contracts';
 import { getRepository } from 'src/common/helpers';
+import { UpdateMeDto } from './dtos';
 
 @Injectable()
 export class UserService {
@@ -17,7 +18,7 @@ export class UserService {
   ) {}
 
   //Request handlers
-  async getMe(id: string): Promise<GetMeRequest> {
+  async getMe(id: string): Promise<GetMeResponse> {
     return this.usersRepository.findOne({
       where: { id },
       select: {
@@ -30,6 +31,14 @@ export class UserService {
     });
   }
 
+  async updateMe(data: UpdateMeDto, id: string): Promise<UpdateResult> {
+    return this.usersRepository.update({ id }, data);
+  }
+
+  async deleteMe(id: string): Promise<UpdateResult> {
+    return this.usersRepository.softDelete({ id });
+  }
+
   // Utils
 
   async findBy(
@@ -38,7 +47,10 @@ export class UserService {
   ): Promise<UserEntity | null> {
     const userRepository = getRepository(activeQueryRunner ?? this.datasource, UserEntity);
 
-    return userRepository.findOneBy(data);
+    return userRepository.findOne({
+      where: data,
+      withDeleted: false,
+    });
   }
 
   async createUser(
