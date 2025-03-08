@@ -25,7 +25,7 @@ export class EmailJSService {
   }
 
   async send<T>({ templateId, templateData }: { templateId: EMAIL_TEMPLATES; templateData: T }): Promise<void> {
-    // TODO - uncomment later
+    // NOTE - email sender disabled for dev env
     if (this.NODE_ENV === 'development') {
       return;
     }
