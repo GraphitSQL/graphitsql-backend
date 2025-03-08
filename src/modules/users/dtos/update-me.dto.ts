@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, MaxLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateMeDto {
   @IsOptional()
@@ -7,12 +7,14 @@ export class UpdateMeDto {
 
   @IsOptional()
   @MaxLength(300)
-  public about?: string;
+  public about: string;
 
   @IsOptional()
   @MaxLength(250)
-  public displayName?: string;
+  @IsString()
+  public displayName: string;
 
   @IsOptional()
-  public avatarColor?: string;
+  @IsString()
+  public avatarColor: string;
 }
