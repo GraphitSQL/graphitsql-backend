@@ -87,7 +87,6 @@ export class ProjectsController {
   @Post('join-to-project')
   async addProjectUser(@Req() req: Request, @CurrentUser() user: ContextUser): Promise<JoinToProjectResponse> {
     const token = req.get('invitation-token');
-    console.log('token', token);
     if (!token) {
       throw new ForbiddenException();
     }
