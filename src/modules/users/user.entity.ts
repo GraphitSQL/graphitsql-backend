@@ -1,4 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
+  JoinColumn,
+  Relation,
+} from 'typeorm';
+import { ProjectEntity } from '../projects/project/project.entity';
+import { ProjectUserEntity } from '../projects/project-user/project-user.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -25,4 +37,12 @@ export class UserEntity {
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date;
+
+  @OneToMany(() => ProjectEntity, project => project.createdBy)
+  @JoinColumn({ name: 'created_by_id' })
+  createdProjects: Relation<ProjectEntity[]>;
+
+  @OneToMany(() => ProjectUserEntity, projectUser => projectUser.user)
+  @JoinColumn({ name: 'user_id' })
+  projects: Relation<ProjectUserEntity[]>;
 }

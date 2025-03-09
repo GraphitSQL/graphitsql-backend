@@ -86,6 +86,21 @@ ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
 
 
 --
+-- Name: projects; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.projects (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    title text NOT NULL,
+    created_by_id uuid,
+    is_public boolean DEFAULT false NOT NULL,
+    created_at timestamp(3) with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp(3) with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp(3) with time zone
+);
+
+
+--
 -- Name: user_credentials; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -93,6 +108,8 @@ CREATE TABLE public.user_credentials (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_id uuid NOT NULL,
     password text NOT NULL,
+    refresh_token text,
+    refresh_token_expires_at timestamp without time zone,
     created_at timestamp(3) with time zone DEFAULT now() NOT NULL,
     updated_at timestamp(3) with time zone DEFAULT now() NOT NULL,
     deleted_at timestamp(3) with time zone
@@ -131,6 +148,14 @@ ALTER TABLE ONLY public.user_credentials
 
 
 --
+-- Name: projects PK_6271df0a7aed1d6c0691ce6ac50; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT "PK_6271df0a7aed1d6c0691ce6ac50" PRIMARY KEY (id);
+
+
+--
 -- Name: migrations PK_8c82d7f526340ab734260ea46be; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -147,19 +172,26 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users UQ_97672ac88f789774dd47f7c8be3; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE (email);
-
-
---
 -- Name: user_credentials UQ_dd0918407944553611bb3eb3ddc; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_credentials
     ADD CONSTRAINT "UQ_dd0918407944553611bb3eb3ddc" UNIQUE (user_id);
+
+
+--
+-- Name: UQ_users_email_deleted_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "UQ_users_email_deleted_at" ON public.users USING btree (email) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: projects FK_users_projects_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT "FK_users_projects_created_by" FOREIGN KEY (created_by_id) REFERENCES public.users(id) ON DELETE SET NULL;
 
 
 --

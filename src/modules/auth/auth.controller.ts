@@ -108,4 +108,10 @@ export class AuthController {
 
     return this.authService.refreshTokens(userId, refreshToken);
   }
+
+  @UseGuards(AccessTokenGuard)
+  @Get('check-authorization')
+  async validateAccessToken(@CurrentUser() user: ContextUser): Promise<RequestResult> {
+    return user.sub ? 'OK' : 'ERROR';
+  }
 }

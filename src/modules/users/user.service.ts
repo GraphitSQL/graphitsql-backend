@@ -59,6 +59,6 @@ export class UserService {
   ): Promise<UserEntity | null> {
     const userRepository = getRepository(activeQueryRunner ?? this.datasource, UserEntity);
     const userData = userRepository.create(data);
-    return this.usersRepository.save(userData);
+    return userRepository.save(userData);
   }
 }

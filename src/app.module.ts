@@ -9,6 +9,7 @@ import { UserModule } from './modules/users/user.module';
 import dbConfig from 'db/config/db-config';
 import { HttpModule } from '@nestjs/axios';
 import { EmailJSModule } from './services/emailjs/emailjs.module';
+import { ProjectsModule } from './modules/projects/projects.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { EmailJSModule } from './services/emailjs/emailjs.module';
     EmailJSModule,
     UserModule,
     AuthModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
