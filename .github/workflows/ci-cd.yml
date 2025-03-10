@@ -20,6 +20,9 @@ jobs:
           script: |
             cd ~
             ls -a
+            echo 123
+            echo $DB_HOST
+            echo 123
             source ~/.bashrc
             cd /root/deploy
             echo $DB_HOST
