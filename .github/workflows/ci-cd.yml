@@ -18,6 +18,9 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}  # SSH private key
           port: ${{ secrets.PORT }}  # SSH port (default: 22)
           script: |
+            cd ~
+            ls -a
+            source ~/.bashrc
             cd /root/deploy
             echo $DB_HOST
             source ~/.bashrc
