@@ -5,10 +5,10 @@ type AccessRefreshTokens = {
   refreshToken: string;
 };
 
-export type LoginRequest = LoginDto;
+export class LoginRequest extends LoginDto {}
 export type LoginResponse = AccessRefreshTokens;
 
-export type GetTokenForRegistrationRequest = BuildRegistrationTokenDto;
+export class GetTokenForRegistrationRequest extends BuildRegistrationTokenDto {}
 export type GetTokenForRegistrationResponse = string;
 
 export type RegisterRequest = {
