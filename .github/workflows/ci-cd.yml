@@ -20,5 +20,6 @@ jobs:
           script: |
             cd /root/deploy
             echo $DB_HOST
+            source ~/.bashrc
             sh graphitsql-staging.sh
             echo $DB_HOST
