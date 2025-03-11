@@ -11,6 +11,7 @@ import {
   InternalServerErrorException,
   Query,
   ForbiddenException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AccessTokenGuard } from '../../common/guards/access-token.guard';
@@ -37,8 +38,12 @@ export class ProjectsController {
   ) {}
 
   @Get('list')
-  async getUserProjects(@CurrentUser() user: ContextUser): Promise<ListProjectsResponse> {
-    const [projects, count] = await this.projectUserService.getUserProjects(user.sub);
+  async getUserProjects(
+    @Query('skip', ParseIntPipe) skip: number,
+    @Query('take', ParseIntPipe) take: number,
+    @CurrentUser() user: ContextUser,
+  ): Promise<ListProjectsResponse> {
+    const [projects, count] = await this.projectUserService.getUserProjects(user.sub, skip, take);
 
     return {
       count,

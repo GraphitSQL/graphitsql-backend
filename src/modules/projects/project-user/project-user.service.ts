@@ -21,7 +21,7 @@ export class ProjectUserService {
 
   //Request handlers
 
-  async getUserProjects(userId: string): Promise<[ProjectUserEntity[], number]> {
+  async getUserProjects(userId: string, skip = 0, take = 100): Promise<[ProjectUserEntity[], number]> {
     return this.projectsUsersRepository.findAndCount({
       where: { userId },
       select: {
@@ -41,6 +41,8 @@ export class ProjectUserService {
         },
       },
       relations: ['project', 'user', 'project.createdBy'],
+      skip,
+      take,
     });
   }
 
