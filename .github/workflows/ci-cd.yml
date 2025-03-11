@@ -1,0 +1,22 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches: [ staging ]
+
+jobs:
+  cd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Deploy to Remote Server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}  # Remote server IP or hostname
+          username: ${{ secrets.USER }}  # SSH username
+          key: ${{ secrets.PRIVATE_KEY }}  # SSH private key
+          port: ${{ secrets.PORT }}  # SSH port (default: 22)
+          script: |
+            cd ~/deploy
+            . graphitsql-staging.sh
