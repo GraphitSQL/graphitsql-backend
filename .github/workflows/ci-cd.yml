@@ -19,5 +19,6 @@ jobs:
           port: ${{ secrets.PORT }}  # SSH port (default: 22)
           script: |
             ls -a
+            ls
             # cd ~/deploy
             # . graphitsql-staging.sh
