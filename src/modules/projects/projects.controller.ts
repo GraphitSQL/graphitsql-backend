@@ -39,11 +39,12 @@ export class ProjectsController {
 
   @Get('list')
   async getUserProjects(
+    @CurrentUser() user: ContextUser,
     @Query('skip', ParseIntPipe) skip: number,
     @Query('take', ParseIntPipe) take: number,
-    @CurrentUser() user: ContextUser,
+    @Query('search') search?: string,
   ): Promise<ListProjectsResponse> {
-    const [projects, count] = await this.projectUserService.getUserProjects(user.sub, skip, take);
+    const [projects, count] = await this.projectUserService.getUserProjects(user.sub, skip, take, search);
 
     return {
       count,

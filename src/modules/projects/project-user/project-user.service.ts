@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { DataSource, FindOneOptions, Repository } from 'typeorm';
+import { DataSource, FindOneOptions, ILike, Repository } from 'typeorm';
 import { ProjectUserEntity } from './project-user.entity';
 import { getRepository } from 'src/common/helpers';
 import { Transactional } from 'src/common/types';
@@ -21,9 +21,16 @@ export class ProjectUserService {
 
   //Request handlers
 
-  async getUserProjects(userId: string, skip = 0, take = 100): Promise<[ProjectUserEntity[], number]> {
+  async getUserProjects(userId: string, skip = 0, take = 100, search?: string): Promise<[ProjectUserEntity[], number]> {
     return this.projectsUsersRepository.findAndCount({
-      where: { userId },
+      where: {
+        userId,
+        ...(search && {
+          project: {
+            title: ILike(search),
+          },
+        }),
+      },
       select: {
         id: true,
         canEdit: true,
@@ -43,6 +50,13 @@ export class ProjectUserService {
       relations: ['project', 'user', 'project.createdBy'],
       skip,
       take,
+      order: {
+        project: {
+          createdAt: {
+            direction: 'DESC',
+          },
+        },
+      },
     });
   }
 
