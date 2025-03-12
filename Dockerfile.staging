@@ -1,7 +1,6 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 USER node
-
 WORKDIR /home/node
 
 RUN mkdir -p node_modules \
@@ -9,8 +8,16 @@ RUN mkdir -p node_modules \
 
 COPY --chown=node:node . .
 
-RUN npm install
+RUN npm install && npm run build
 
-RUN npm run build
+FROM node:20-alpine
+
+USER node
+WORKDIR /home/node
+
+COPY --from=builder --chown=node:node /home/node/package*.json ./
+COPY --from=builder --chown=node:node /home/node/dist ./dist
+
+RUN npm ci --only=production
 
 CMD ["node", "dist/src/main.js"]

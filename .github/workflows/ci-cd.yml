@@ -4,12 +4,26 @@ on:
   push:
     branches: [ staging ]
 
+env:
+  SERVICE_NAME: graphitsql-backend
+
 jobs:
   cd:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Build image
+        run: |
+          docker build -f ./Dockerfile.staging -t ${{ secrets.DOCKER_USER }}/${{ env.SERVICE_NAME }} .
+          docker push ${{ secrets.DOCKER_USER }}/${{ env.SERVICE_NAME }}
+
+          
       - name: Deploy to Remote Server
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -19,4 +33,4 @@ jobs:
           port: ${{ secrets.PORT }}  # SSH port (default: 22)
           script: |
             cd ~/deploy
-            . graphitsql-staging.sh
+            . graphitsql-server-staging.sh
