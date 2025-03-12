@@ -22,6 +22,7 @@ export default registerAs(
       connectionTimeoutMillis: 100000,
     },
     synchronize: false,
+    migrationsRun: process.env.NODE_ENV !== 'development',
     logging: process.env.DATABASE_LOGGING_ENABLED === 'true',
   }),
 );
