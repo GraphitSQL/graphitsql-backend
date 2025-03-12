@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { ProjectEntity } from '../project/project.entity';
 import { UserEntity } from 'src/modules/users/user.entity';
 
@@ -25,4 +25,10 @@ export class ProjectUserEntity {
 
   @ManyToOne(() => UserEntity, user => user.projects, { onDelete: 'CASCADE' })
   user: UserEntity;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

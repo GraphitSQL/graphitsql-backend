@@ -67,6 +67,7 @@ export class AddProjectsTable1741545517141 implements MigrationInterface {
             default: true,
             isNullable: false,
           },
+          ...timestampts,
         ],
         uniques: [
           {
