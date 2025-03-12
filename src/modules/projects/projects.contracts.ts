@@ -9,6 +9,7 @@ export type CreateProjectResponse = {
   createdBy: {
     id: string;
     displayName: string;
+    avatarColor: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -18,9 +19,10 @@ export type PreResolutionListProject = {
   id: string;
   title: string;
   isPublic: boolean;
-  createdBy: {
+  createdBy?: {
     id: string;
     displayName: string;
+    avatarColor: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -35,4 +37,4 @@ export type DeleteProjectResponse = RequestResult;
 export class UpdateProjectRequest extends UpdateProjectDto {}
 export type UpdateProjectResponse = RequestResult;
 
-export type JoinToProjectResponse = RequestResult;
+export type JoinToProjectResponse = string;

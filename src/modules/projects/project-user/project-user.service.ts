@@ -41,6 +41,7 @@ export class ProjectUserService {
           createdBy: {
             id: true,
             displayName: true,
+            avatarColor: true,
           },
           createdAt: true,
           updatedAt: true,
@@ -61,10 +62,25 @@ export class ProjectUserService {
   }
 
   async generateInvitationLink({ projectId, userId }: { projectId: string; userId: string }): Promise<string> {
-    const projectUser = await this.getProjectUser({ where: { projectId, userId } });
+    const projectUser = await this.getProjectUser({
+      where: { projectId, userId },
+      select: {
+        id: true,
+        project: {
+          isPublic: true,
+        },
+      },
+      relations: ['project'],
+    });
 
     if (!projectUser) {
-      throw new ForbiddenException("You don't have rights");
+      throw new ForbiddenException('У вас нет прав');
+    }
+
+    const { project } = projectUser;
+
+    if (!project.isPublic) {
+      throw new ForbiddenException('Нельзя пригласить в закрытый проект');
     }
     const invitationToken = await this.generateIvitationLink({ projectId });
     const appDomain = await this.configService.getOrThrow('service.frontendAppDomain');
@@ -73,6 +89,12 @@ export class ProjectUserService {
 
   async joinToProject({ userId, token }: { userId: string; token: string }): Promise<ProjectUserEntity | null> {
     const payload = this.jwtService.decode<{ projectId: string }>(token);
+    const projectUser = await this.projectsUsersRepository.findOneBy({ userId, projectId: payload.projectId });
+
+    if (projectUser) {
+      return projectUser;
+    }
+
     return this.createProjectUser({ userId, projectId: payload.projectId });
   }
 
@@ -88,7 +110,7 @@ export class ProjectUserService {
   ): Promise<ProjectUserEntity | null> {
     const projectUserRepository = getRepository(activeQueryRunner ?? this.datasource, ProjectUserEntity);
     const projectUserData = projectUserRepository.create(data);
-    return projectUserRepository.save(projectUserData);
+    return projectUserRepository.save(projectUserData, { reload: true });
   }
 
   private async generateIvitationLink({ projectId }: { projectId: string }) {

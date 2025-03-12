@@ -48,7 +48,7 @@ export class EmailJSService {
       });
     } catch (e) {
       this.logger.error('Unable to send email', e);
-      throw new BadRequestException('Unable to send email');
+      throw new BadRequestException('Невозможно отправить письмо');
     }
   }
 }

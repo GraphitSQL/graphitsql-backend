@@ -73,6 +73,7 @@ export class ProjectsController {
       createdBy: {
         id: result.createdBy.id,
         displayName: result.createdBy.displayName,
+        avatarColor: result.createdBy.avatarColor,
       },
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
@@ -84,7 +85,7 @@ export class ProjectsController {
     const result = await this.projectService.updateProject({ projectData: payload, projectId: id });
 
     if (!result.affected) {
-      throw new NotFoundException('Project was not found');
+      throw new NotFoundException('Проект не найден');
     }
 
     return 'OK';
@@ -94,15 +95,15 @@ export class ProjectsController {
   async addProjectUser(@Req() req: Request, @CurrentUser() user: ContextUser): Promise<JoinToProjectResponse> {
     const token = req.get('invitation-token');
     if (!token) {
-      throw new ForbiddenException();
+      throw new ForbiddenException('Доступ запрещен');
     }
     const result = await this.projectUserService.joinToProject({ token, userId: user.sub });
 
     if (!result) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException('Внутренняя ошибка сервера');
     }
 
-    return 'OK';
+    return result.projectId;
   }
 
   @Delete('delete')
@@ -110,7 +111,7 @@ export class ProjectsController {
     const res = await this.projectService.deleteProject(id, user.sub);
 
     if (!res.affected) {
-      throw new NotFoundException('Project was not found');
+      throw new NotFoundException('Проект не найден');
     }
 
     return 'OK';

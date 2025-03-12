@@ -65,13 +65,13 @@ export class AuthService {
       const isCodeMatch = await bcrypt.compare(inputCode, code);
 
       if (!isCodeMatch) {
-        throw new BadRequestException('Invalid code');
+        throw new BadRequestException('Неверный код');
       }
 
       const existingUser = await this.userService.findBy({ email });
 
       if (existingUser) {
-        throw new ConflictException('User with this email already exists');
+        throw new ConflictException('Пользователь с такой почтой уже существует');
       }
 
       const user = await this.userService.createUser(
@@ -84,7 +84,7 @@ export class AuthService {
       );
 
       if (!user) {
-        throw new BadRequestException('Unable to create user');
+        throw new BadRequestException('Невозможно создать юзера');
       }
 
       const tokens = await this.generateTokens(user);
@@ -106,11 +106,11 @@ export class AuthService {
       where: { userId, user: { deletedAt: IsNull() } },
       relations: ['user'],
     });
-    if (!credentials || !credentials.refreshToken) throw new UnauthorizedException('Unauthorized');
+    if (!credentials || !credentials.refreshToken) throw new UnauthorizedException('Требуется авторизация');
 
     const refreshTokenMatches = await bcrypt.compare(refreshToken, credentials.refreshToken);
 
-    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    if (!refreshTokenMatches) throw new ForbiddenException('Доступ запрещен');
 
     const tokens = await this.generateTokens(credentials.user);
     await this.updateRefreshToken(userId, tokens.refreshToken);
@@ -121,7 +121,7 @@ export class AuthService {
     const existingUser = await this.userService.findBy({ email });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException('Пользователь с такой почтой уже существует');
     }
 
     const verifyCode = crypto.randomBytes(2).toString('hex').toUpperCase();
@@ -167,7 +167,7 @@ export class AuthService {
     const creadentials = await this.credentialsRepository.findBy({ userId });
 
     if (!creadentials) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Пользователь не найден');
     }
 
     await this.credentialsRepository.update(
@@ -186,11 +186,11 @@ export class AuthService {
       relations: ['user'],
     });
 
-    if (!credentials) throw new BadRequestException('User does not exist');
+    if (!credentials) throw new BadRequestException('Пользователя не существует');
 
     const isPasswordMatches = await bcrypt.compare(password, credentials.password);
 
-    if (!isPasswordMatches) throw new BadRequestException('Password is incorrect');
+    if (!isPasswordMatches) throw new BadRequestException('Неверный пароль');
 
     return credentials.user;
   }

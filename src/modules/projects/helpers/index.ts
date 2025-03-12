@@ -8,9 +8,12 @@ export function buildListProjectResponse(data: ProjectUserEntity): PreResolution
     isPublic: data.project.isPublic,
     createdAt: data.project.createdAt,
     updatedAt: data.project.updatedAt,
-    createdBy: {
-      id: data.project.createdBy.id,
-      displayName: data.project.createdBy.displayName,
-    },
+    ...(data.project.createdBy && {
+      createdBy: {
+        id: data.project.createdBy.id,
+        displayName: data.project.createdBy.displayName,
+        avatarColor: data.project.createdBy.avatarColor,
+      },
+    }),
   };
 }

@@ -44,7 +44,7 @@ export class ProjectService {
     const projectUser = await this.projectsUsersService.getProjectUser({ where: { userId, projectId } });
 
     if (!projectUser) {
-      throw new ForbiddenException('You do not have rights or project does not exists');
+      throw new ForbiddenException('Недостаточно прав или проект не сушествует');
     }
 
     const result = await this.projectsRepository.delete({ id: projectId });

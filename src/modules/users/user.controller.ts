@@ -21,7 +21,7 @@ export class UserController {
     const res = await this.userService.updateMe(payload, user.sub);
 
     if (!res.affected) {
-      throw new NotFoundException('User was not found');
+      throw new NotFoundException('Пользователь не найден');
     }
 
     return 'OK';
@@ -33,7 +33,7 @@ export class UserController {
     const res = await this.userService.deleteMe(user.sub);
 
     if (!res.affected) {
-      throw new NotFoundException('Account was not found');
+      throw new NotFoundException('Аккаунт не найден');
     }
 
     return 'OK';
