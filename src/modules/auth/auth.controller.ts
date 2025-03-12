@@ -53,7 +53,7 @@ export class AuthController {
     const registrationToken = req.get('registration-token');
 
     if (!registrationToken) {
-      throw new UnauthorizedException('Access Denied');
+      throw new UnauthorizedException('Доступ запрещен');
     }
 
     return this.authService.register(registrationToken, code);
@@ -64,7 +64,7 @@ export class AuthController {
     const registrationToken = req.get('registration-token');
 
     if (!registrationToken) {
-      throw new UnauthorizedException('Access Denied');
+      throw new UnauthorizedException('Доступ запрещен');
     }
 
     return this.authService.resendVerificationCode(registrationToken);
@@ -107,5 +107,11 @@ export class AuthController {
     const refreshToken = req.user['refreshToken'];
 
     return this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Get('check-authorization')
+  async validateAccessToken(@CurrentUser() user: ContextUser): Promise<RequestResult> {
+    return user.sub ? 'OK' : 'ERROR';
   }
 }
