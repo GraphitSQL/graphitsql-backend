@@ -12,6 +12,8 @@ import {
 } from 'typeorm';
 import { UserEntity } from '../../users/user.entity';
 import { ProjectUserEntity } from '../project-user/project-user.entity';
+import { ProjectNodeEntity } from 'src/modules/nodes/node.entity';
+import { ProjectEdgeEntity } from 'src/modules/edges/edge.entity';
 
 @Entity('projects')
 export class ProjectEntity {
@@ -35,6 +37,12 @@ export class ProjectEntity {
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date;
+
+  @OneToMany(() => ProjectNodeEntity, node => node.project)
+  nodes: Relation<ProjectNodeEntity[]>;
+
+  @OneToMany(() => ProjectEdgeEntity, node => node.project)
+  edges: Relation<ProjectEdgeEntity[]>;
 
   @ManyToOne(() => UserEntity, createdBy => createdBy.createdProjects, { onDelete: 'SET NULL' })
   @JoinColumn()
