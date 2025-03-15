@@ -6,6 +6,7 @@ import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { withTransaction } from 'src/common/helpers';
 import { ProjectEntity } from './project.entity';
 import { ProjectUserService } from '../project-user/project-user.service';
+import { ProjectData } from '../projects.contracts';
 
 @Injectable()
 export class ProjectService {
@@ -50,6 +51,35 @@ export class ProjectService {
     const result = await this.projectsRepository.delete({ id: projectId });
 
     return result;
+  }
+
+  async getProjectNodesAndEdges(id: string): Promise<ProjectData> {
+    const project = await this.projectsRepository.findOneOrFail({
+      where: { id },
+      relations: ['nodes', 'edges'],
+      select: {
+        edges: {
+          id: true,
+          markerEnd: true,
+          sourceHandle: true,
+          targetHandle: true,
+          source: true,
+          target: true,
+          type: true,
+        },
+        nodes: {
+          id: true,
+          position: {},
+          data: {},
+          type: true,
+        },
+      },
+    });
+
+    return {
+      nodes: project.nodes,
+      edges: project.edges,
+    };
   }
 
   // Helpers
