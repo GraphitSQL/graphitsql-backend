@@ -1,3 +1,4 @@
+import { ProjectsService } from './projects.service';
 import { ProjectUserService } from './project-user/project-user.service';
 import {
   Controller,
@@ -16,7 +17,7 @@ import {
 import { Request } from 'express';
 import { AccessTokenGuard } from '../../common/guards/access-token.guard';
 import { CurrentUser } from 'src/common/decorators';
-import { ContextUser } from 'src/common/types';
+import { ContextUser, RequestResult } from 'src/common/types';
 import { ProjectService } from './project/project.service';
 import { buildListProjectResponse } from './helpers';
 import {
@@ -27,6 +28,8 @@ import {
   ListProjectsResponse,
   UpdateProjectRequest,
   UpdateProjectResponse,
+  ProjectDataResponse,
+  UpdateProjectDataRequest,
 } from './projects.contracts';
 
 @Controller('projects')
@@ -35,6 +38,7 @@ export class ProjectsController {
   constructor(
     private readonly projectService: ProjectService,
     private readonly projectUserService: ProjectUserService,
+    private readonly projectsService: ProjectsService,
   ) {}
 
   @Get('list')
@@ -57,6 +61,16 @@ export class ProjectsController {
     const link = await this.projectUserService.generateInvitationLink({ projectId, userId: user.sub });
 
     return link;
+  }
+
+  @Get('project-data')
+  async getProjectData(@CurrentUser() user: ContextUser, @Query('id') id: string): Promise<ProjectDataResponse> {
+    const data = await this.projectsService.getProjectData(id, user.sub);
+
+    return {
+      data,
+      isScratch: !data.nodes.length && !data.edges.length,
+    };
   }
 
   @Post('create')
@@ -104,6 +118,17 @@ export class ProjectsController {
     }
 
     return result.projectId;
+  }
+
+  @Post('update-project-data')
+  async updateProjectData(
+    @Body() payload: UpdateProjectDataRequest,
+    @Query('id') id: string,
+    @CurrentUser() user: ContextUser,
+  ): Promise<RequestResult> {
+    const result = await this.projectsService.saveProjectDataChanges(id, user.sub, payload);
+
+    return result;
   }
 
   @Delete('delete')

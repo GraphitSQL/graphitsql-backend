@@ -10,6 +10,10 @@ import dbConfig from 'db/config/db-config';
 import { HttpModule } from '@nestjs/axios';
 import { EmailJSModule } from './services/emailjs/emailjs.module';
 import { ProjectsModule } from './modules/projects/projects.module';
+import { ProjectNodeModule } from './modules/nodes/node.module';
+import { ProjectEdgeModule } from './modules/edges/edge.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ErrorsInterceptor } from './common/interceptors';
 
 @Module({
   imports: [
@@ -29,9 +33,17 @@ import { ProjectsModule } from './modules/projects/projects.module';
     EmailJSModule,
     UserModule,
     AuthModule,
+    ProjectNodeModule,
+    ProjectEdgeModule,
     ProjectsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ErrorsInterceptor,
+    },
+  ],
 })
 export class AppModule {}
