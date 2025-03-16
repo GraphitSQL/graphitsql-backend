@@ -3,7 +3,6 @@ import {
   CallHandler,
   ConflictException,
   ExecutionContext,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NestInterceptor,
@@ -38,15 +37,15 @@ export class ErrorsInterceptor implements NestInterceptor {
           return throwError(() => new BadRequestException(buildFieldError(err.errors[0]) || 'Bad request'));
         }
 
-        if (err instanceof ForbiddenException) {
-          return throwError(() => new ForbiddenException(err.message));
-        }
-
         if (err instanceof QueryFailedError && err.driverError.code === NOT_UNIQUE_DB_CODE_ERROR) {
           return throwError(() => new ConflictException(err.driverError.detail));
         }
 
-        return throwError(() => new InternalServerErrorException(err?.message || 'An unexpected error occurred'));
+        if (err instanceof Error) {
+          return throwError(() => new (err.constructor as any)(err.message));
+        }
+
+        return throwError(() => new InternalServerErrorException(err?.message || 'Внутренняя ошибка сервера'));
       }),
     );
   }

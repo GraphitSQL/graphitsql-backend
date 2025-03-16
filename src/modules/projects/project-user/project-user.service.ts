@@ -8,6 +8,7 @@ import { getRepository } from 'src/common/helpers';
 import { Transactional } from 'src/common/types';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { BATCH_SIZE } from 'src/common/constants/batch-size.constant';
 
 @Injectable()
 export class ProjectUserService {
@@ -21,13 +22,18 @@ export class ProjectUserService {
 
   //Request handlers
 
-  async getUserProjects(userId: string, skip = 0, take = 100, search?: string): Promise<[ProjectUserEntity[], number]> {
+  async getUserProjects(
+    userId: string,
+    skip = 0,
+    take = BATCH_SIZE,
+    search?: string,
+  ): Promise<[ProjectUserEntity[], number]> {
     return this.projectsUsersRepository.findAndCount({
       where: {
         userId,
         ...(search && {
           project: {
-            title: ILike(search),
+            title: ILike(`%${search}%`),
           },
         }),
       },
