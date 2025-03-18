@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Relation,
 } from 'typeorm';
 import { ProjectEntity } from '../projects/project/project.entity';
 import { UserEntity } from '../users/user.entity';
@@ -39,5 +40,5 @@ export class NoteEntity {
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
-  createdBy: UserEntity;
+  createdBy: Relation<UserEntity>;
 }

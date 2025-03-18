@@ -14,7 +14,14 @@ import { AccessTokenGuard } from '../../common/guards/access-token.guard';
 import { CurrentUser } from 'src/common/decorators';
 import { ContextUser } from 'src/common/types';
 import { NoteService } from './note.service';
-import { CreateNoteRequest, CreateNoteResponse, DeleteNoteResponse, ListNotesResponse } from './note.contracts';
+import {
+  CreateNoteRequest,
+  CreateNoteResponse,
+  DeleteNoteResponse,
+  ListNotesResponse,
+  UpdateNoteRequest,
+  UpdateNoteResponse,
+} from './note.contracts';
 
 @Controller('notes')
 @UseGuards(AccessTokenGuard)
@@ -25,9 +32,11 @@ export class NoteController {
   async getProjectNotes(
     @Query('skip', ParseIntPipe) skip: number,
     @Query('take', ParseIntPipe) take: number,
+    @Query('direction') direction: 'ASC' | 'DESC',
     @Query('projectId') projectId: string,
   ): Promise<ListNotesResponse> {
-    const [notes, count] = await this.noteService.getProjectNotes(projectId, skip, take);
+    console.log('skip', skip, take, direction, projectId);
+    const [notes, count] = await this.noteService.getProjectNotes(projectId, skip, take, direction);
 
     return {
       count,
@@ -51,7 +60,23 @@ export class NoteController {
     };
   }
 
-  @Delete('delete')
+  @Post('update/:id')
+  async updateNote(
+    @Param('id') id: string,
+    @Query('projectId') projectId: string,
+    @Body() payload: UpdateNoteRequest,
+    @CurrentUser() user: ContextUser,
+  ): Promise<UpdateNoteResponse> {
+    const result = await this.noteService.updateNote({ data: payload, userId: user.sub, noteId: id, projectId });
+
+    if (!result.affected) {
+      throw new NotFoundException('Заметка не найдена');
+    }
+
+    return 'OK';
+  }
+
+  @Delete('delete/:id')
   async deleteNote(@Param('id') id: string, @CurrentUser() user: ContextUser): Promise<DeleteNoteResponse> {
     const res = await this.noteService.deleteNote({ noteId: id, userId: user.sub });
 

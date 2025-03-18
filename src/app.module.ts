@@ -14,6 +14,7 @@ import { ProjectNodeModule } from './modules/nodes/node.module';
 import { ProjectEdgeModule } from './modules/edges/edge.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ErrorsInterceptor } from './common/interceptors';
+import { NoteModule } from './modules/notes/note.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ErrorsInterceptor } from './common/interceptors';
     ProjectNodeModule,
     ProjectEdgeModule,
     ProjectsModule,
+    NoteModule,
   ],
   controllers: [AppController],
   providers: [

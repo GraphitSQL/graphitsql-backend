@@ -20,3 +20,8 @@ export class CreateNoteRequest extends CreateNoteDto {}
 export type CreateNoteResponse = PreResolutionNotesList;
 
 export type DeleteNoteResponse = RequestResult;
+
+export type UpdateNoteRequest = {
+  isResolved: boolean;
+};
+export type UpdateNoteResponse = RequestResult;

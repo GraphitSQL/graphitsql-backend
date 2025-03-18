@@ -3,7 +3,7 @@ import { IsBoolean, IsDefined, IsOptional, IsString, MaxLength } from 'class-val
 export class CreateNoteDto {
   @IsDefined()
   @IsString()
-  @MaxLength(600)
+  @MaxLength(600, { message: 'Максимальная длина заметки 600 символов' })
   public noteText: string;
 
   @IsDefined()
