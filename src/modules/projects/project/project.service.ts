@@ -19,6 +19,25 @@ export class ProjectService {
 
   //Request handlers
 
+  async getProject(id: string): Promise<ProjectEntity> {
+    return this.projectsRepository.findOne({
+      where: { id },
+      relations: ['createdBy'],
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        isPublic: true,
+        title: true,
+        createdBy: {
+          displayName: true,
+          id: true,
+          avatarColor: true,
+        },
+      },
+    });
+  }
+
   async createProject({
     projectData,
     userId,

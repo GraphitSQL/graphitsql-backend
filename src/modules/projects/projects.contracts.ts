@@ -52,3 +52,20 @@ export type ProjectDataResponse = {
 };
 
 export class UpdateProjectDataRequest extends UpdateProjectDataDto {}
+
+export type GetProjectResponse = PreResolutionListProject;
+
+export type ProjectMember = {
+  id: string;
+  displayName: string;
+  avatarColor: string;
+  isOwner: boolean;
+  userId: string;
+};
+
+export type ProjectMembersListResponse = {
+  count: number;
+  members: Array<ProjectMember>;
+};
+
+export type DeleteProjectMemberResponse = RequestResult;

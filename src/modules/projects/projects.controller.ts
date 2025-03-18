@@ -13,13 +13,14 @@ import {
   Query,
   ForbiddenException,
   ParseIntPipe,
+  Param,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AccessTokenGuard } from '../../common/guards/access-token.guard';
 import { CurrentUser } from 'src/common/decorators';
 import { ContextUser, RequestResult } from 'src/common/types';
 import { ProjectService } from './project/project.service';
-import { buildListProjectResponse } from './helpers';
+import { buildListProjectResponse, buildProjectMembersListResponse, buildProjectResponse } from './helpers';
 import {
   JoinToProjectResponse,
   CreateProjectRequest,
@@ -30,6 +31,9 @@ import {
   UpdateProjectResponse,
   ProjectDataResponse,
   UpdateProjectDataRequest,
+  GetProjectResponse,
+  ProjectMembersListResponse,
+  DeleteProjectMemberResponse,
 } from './projects.contracts';
 
 @Controller('projects')
@@ -53,6 +57,31 @@ export class ProjectsController {
     return {
       count,
       projects: projects.map(buildListProjectResponse),
+    };
+  }
+
+  @Get('get/:id')
+  async getProject(@Param('id') id: string): Promise<GetProjectResponse> {
+    const project = await this.projectService.getProject(id);
+
+    if (!project) {
+      throw new NotFoundException('Проект не найден');
+    }
+
+    return buildProjectResponse(project);
+  }
+
+  @Get(':id/members')
+  async getProjectMembers(
+    @Param('id') id: string,
+    @Query('skip', ParseIntPipe) skip: number,
+    @Query('take', ParseIntPipe) take: number,
+  ): Promise<ProjectMembersListResponse> {
+    const [members, count] = await this.projectUserService.getProjectMembers(id, { skip, take });
+
+    return {
+      count,
+      members: members.map(buildProjectMembersListResponse),
     };
   }
 
@@ -94,8 +123,8 @@ export class ProjectsController {
     };
   }
 
-  @Post('update')
-  async updateProject(@Query('id') id: string, @Body() payload: UpdateProjectRequest): Promise<UpdateProjectResponse> {
+  @Post('update/:id')
+  async updateProject(@Param('id') id: string, @Body() payload: UpdateProjectRequest): Promise<UpdateProjectResponse> {
     const result = await this.projectService.updateProject({ projectData: payload, projectId: id });
 
     if (!result.affected) {
@@ -137,6 +166,25 @@ export class ProjectsController {
 
     if (!res.affected) {
       throw new NotFoundException('Проект не найден');
+    }
+
+    return 'OK';
+  }
+
+  @Delete('delete/members:/projectId/:memberId')
+  async deleteProjectMember(
+    @Param('memberId') memberId: string,
+    @Param('projectId') projectId: string,
+    @CurrentUser() user: ContextUser,
+  ): Promise<DeleteProjectMemberResponse> {
+    const res = await this.projectUserService.deleteProjectMember({
+      projectId,
+      userId: user.sub,
+      memberId,
+    });
+
+    if (!res.affected) {
+      throw new NotFoundException('Участник не найден');
     }
 
     return 'OK';
