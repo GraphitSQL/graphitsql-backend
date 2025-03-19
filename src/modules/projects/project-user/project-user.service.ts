@@ -28,7 +28,6 @@ export class ProjectUserService {
     take = BATCH_SIZE,
     search?: string,
   ): Promise<[ProjectUserEntity[], number]> {
-  async getUserProjects(userId: string, skip = 0, take = 100, search?: string): Promise<[ProjectUserEntity[], number]> {
     return this.projectsUsersRepository.findAndCount({
       where: {
         userId,
