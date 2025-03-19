@@ -65,6 +65,7 @@ export type ProjectMember = {
 
 export type ProjectMembersListResponse = {
   count: number;
+  isPublicProject: boolean;
   members: Array<ProjectMember>;
 };
 

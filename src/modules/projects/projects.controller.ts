@@ -78,9 +78,11 @@ export class ProjectsController {
     @Query('take', ParseIntPipe) take: number,
   ): Promise<ProjectMembersListResponse> {
     const [members, count] = await this.projectUserService.getProjectMembers(id, { skip, take });
+    const project = await this.projectService.getProject(id);
 
     return {
       count,
+      isPublicProject: project.isPublic,
       members: members.map(buildProjectMembersListResponse),
     };
   }
@@ -171,14 +173,14 @@ export class ProjectsController {
     return 'OK';
   }
 
-  @Delete('delete/members:/projectId/:memberId')
+  @Delete(':id/members/delete/:memberId')
   async deleteProjectMember(
     @Param('memberId') memberId: string,
-    @Param('projectId') projectId: string,
+    @Param('id') id: string,
     @CurrentUser() user: ContextUser,
   ): Promise<DeleteProjectMemberResponse> {
     const res = await this.projectUserService.deleteProjectMember({
-      projectId,
+      projectId: id,
       userId: user.sub,
       memberId,
     });
