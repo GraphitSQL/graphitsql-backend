@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { DataSource, FindOneOptions, ILike, Repository } from 'typeorm';
+import { DataSource, DeleteResult, FindOneOptions, ILike, Repository } from 'typeorm';
 import { ProjectUserEntity } from './project-user.entity';
 import { getRepository } from 'src/common/helpers';
 import { Transactional } from 'src/common/types';
@@ -104,6 +104,61 @@ export class ProjectUserService {
     return this.createProjectUser({ userId, projectId: payload.projectId });
   }
 
+  async getProjectMembers(
+    projectId: string,
+    { skip, take }: { skip: number; take: number },
+  ): Promise<[ProjectUserEntity[], number]> {
+    return this.projectsUsersRepository.findAndCount({
+      where: {
+        projectId,
+      },
+      select: {
+        id: true,
+        project: {
+          createdById: true,
+        },
+        user: {
+          id: true,
+          displayName: true,
+          avatarColor: true,
+        },
+      },
+      relations: ['project', 'user'],
+      skip,
+      take,
+      order: {
+        user: {
+          displayName: {
+            direction: 'ASC',
+          },
+        },
+      },
+    });
+  }
+
+  async deleteProjectMember({
+    memberId,
+    userId,
+    projectId,
+  }: {
+    memberId: string;
+    userId: string;
+    projectId: string;
+  }): Promise<DeleteResult> {
+    const projectUser = await this.getProjectUser({
+      where: { projectId, userId },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!projectUser) {
+      throw new ForbiddenException('У вас нет прав');
+    }
+
+    return this.deleteById(memberId);
+  }
+
   // Helpers
 
   async getProjectUser(data: FindOneOptions<ProjectUserEntity>): Promise<ProjectUserEntity> {
@@ -127,5 +182,9 @@ export class ProjectUserService {
     });
 
     return invitationToken;
+  }
+
+  private async deleteById(id: string): Promise<DeleteResult> {
+    return this.projectsUsersRepository.delete({ id });
   }
 }

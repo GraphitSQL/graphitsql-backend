@@ -35,7 +35,6 @@ export class NoteController {
     @Query('direction') direction: 'ASC' | 'DESC',
     @Query('projectId') projectId: string,
   ): Promise<ListNotesResponse> {
-    console.log('skip', skip, take, direction, projectId);
     const [notes, count] = await this.noteService.getProjectNotes(projectId, skip, take, direction);
 
     return {
