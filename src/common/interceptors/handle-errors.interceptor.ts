@@ -3,6 +3,7 @@ import {
   CallHandler,
   ConflictException,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NestInterceptor,
@@ -35,6 +36,10 @@ export class ErrorsInterceptor implements NestInterceptor {
 
         if (err instanceof ValidationFailedError) {
           return throwError(() => new BadRequestException(buildFieldError(err.errors[0]) || 'Bad request'));
+        }
+
+        if (err instanceof ForbiddenException) {
+          return throwError(() => new ForbiddenException(err.message));
         }
 
         if (err instanceof QueryFailedError && err.driverError.code === NOT_UNIQUE_DB_CODE_ERROR) {

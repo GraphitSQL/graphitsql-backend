@@ -1,5 +1,6 @@
 import { IsBoolean, IsDefined, IsString, MaxLength } from 'class-validator';
 
+
 export class CreateProjectDto {
   @IsDefined()
   @IsString()

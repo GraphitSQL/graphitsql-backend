@@ -21,6 +21,7 @@ import { CurrentUser } from 'src/common/decorators';
 import { ContextUser, RequestResult } from 'src/common/types';
 import { ProjectService } from './project/project.service';
 import { buildListProjectResponse, buildProjectMembersListResponse, buildProjectResponse } from './helpers';
+
 import {
   JoinToProjectResponse,
   CreateProjectRequest,
@@ -172,6 +173,7 @@ export class ProjectsController {
 
     return 'OK';
   }
+
 
   @Delete(':id/members/delete/:memberId')
   async deleteProjectMember(

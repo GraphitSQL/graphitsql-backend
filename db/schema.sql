@@ -100,8 +100,6 @@ CREATE TABLE public.notes (
     deleted_at timestamp(3) with time zone
 );
 
-
---
 -- Name: projects; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -167,8 +165,6 @@ CREATE TABLE public.projects_users (
     deleted_at timestamp(3) with time zone
 );
 
-
---
 -- Name: user_credentials; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -264,19 +260,33 @@ ALTER TABLE ONLY public.users
 
 
 --
+
 -- Name: notes PK_af6206538ea96c4e77e9f400c3d; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notes
     ADD CONSTRAINT "PK_af6206538ea96c4e77e9f400c3d" PRIMARY KEY (id);
 
-
---
 -- Name: user_credentials UQ_dd0918407944553611bb3eb3ddc; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_credentials
     ADD CONSTRAINT "UQ_dd0918407944553611bb3eb3ddc" UNIQUE (user_id);
+
+
+--
+-- Name: UQ_users_email_deleted_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX "UQ_users_email_deleted_at" ON public.users USING btree (email) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: projects FK_users_projects_created_by; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT "FK_users_projects_created_by" FOREIGN KEY (created_by_id) REFERENCES public.users(id) ON DELETE SET NULL;
 
 
 --
