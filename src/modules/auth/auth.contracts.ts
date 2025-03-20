@@ -1,3 +1,4 @@
+import { RequestResult } from 'src/common/types';
 import { BuildRegistrationTokenDto, LoginDto } from './dto';
 
 type AccessRefreshTokens = {
@@ -23,3 +24,13 @@ export type ResendVerificationCodeResponse = string;
 export type ChangePasswordRequest = {
   newPassword: string;
 };
+
+export type GetResetPasswordTokenRequest = {
+  email: string;
+};
+export type GetResetPasswordTokenResponse = string;
+
+export type VerifyResetPasswordTokenRequest = {
+  code: string;
+};
+export type VerifyResetPasswordTokenResponse = RequestResult;

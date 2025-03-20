@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
@@ -48,7 +48,6 @@ export class EmailJSService {
       });
     } catch (e) {
       this.logger.error('Unable to send email', e);
-      throw new BadRequestException('Невозможно отправить письмо');
     }
   }
 }

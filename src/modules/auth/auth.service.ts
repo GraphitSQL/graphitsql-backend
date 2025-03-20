@@ -20,7 +20,7 @@ import { withTransaction } from 'src/common/helpers';
 import { BuildRegistrationTokenDto, LoginDto } from './dto';
 import * as crypto from 'crypto';
 import { EMAIL_TEMPLATES } from 'src/services/emailjs/templates';
-import { SendVerificationEmailData } from 'src/services/emailjs/types/emails.types';
+import { SendResetPasswordEmailData, SendVerificationEmailData } from 'src/services/emailjs/types/emails.types';
 
 @Injectable()
 export class AuthService {
@@ -142,7 +142,7 @@ export class AuthService {
       },
     );
 
-    await this.emailService.send<SendVerificationEmailData>({
+    this.emailService.send<SendVerificationEmailData>({
       templateId: EMAIL_TEMPLATES.VERIFY_EMAIL,
       templateData: {
         verification_code: verifyCode,
@@ -160,6 +160,71 @@ export class AuthService {
     const { email, password, avatarColor, userName } = registrationData;
 
     return this.buildRegistrationToken({ email, password, avatarColor, userName });
+  }
+
+  async buildResetPasswordToken(email: string): Promise<string> {
+    const existingUser = await this.userService.findBy({ email });
+
+    if (!existingUser) {
+      throw new NotFoundException('Пользователь с такой почтой не существует');
+    }
+
+    const verifyCode = crypto.randomBytes(2).toString('hex').toUpperCase();
+    this.logger.debug('resetPasswordCode', verifyCode);
+
+    const encryptedCode = await this.hashData(verifyCode);
+
+    const registrationToken = await this.jwtService.signAsync(
+      {
+        userId: existingUser.id,
+        code: encryptedCode,
+        email,
+      },
+      {
+        secret: this.configService.get<string>('service.jwt.secret'),
+        expiresIn: '25m',
+      },
+    );
+
+    this.emailService.send<SendResetPasswordEmailData>({
+      templateId: EMAIL_TEMPLATES.RESET_PASSWORD,
+      templateData: {
+        reset_code: verifyCode,
+        username: existingUser.displayName,
+        to_email: existingUser.email,
+      },
+    });
+
+    return registrationToken;
+  }
+
+  async resendResetPasswordCode(registrationToken: string) {
+    const registrationData = this.getResetPasswordData(registrationToken);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { email } = registrationData;
+
+    return this.buildResetPasswordToken(email);
+  }
+
+  async validateResetPasswordToken(resetPasswordToken: string, inputCode: string): Promise<void> {
+    const { code } = this.getResetPasswordData(resetPasswordToken);
+    const isCodeMatch = await bcrypt.compare(inputCode, code);
+
+    console.log('inputCode', inputCode);
+    console.log('code', code);
+    console.log('isCodeMatch', isCodeMatch);
+
+    if (!isCodeMatch) {
+      throw new ForbiddenException('Неверный код');
+    }
+  }
+
+  async setNewPassword(password: string, resetPasswordToken: string) {
+    const registrationData = this.getResetPasswordData(resetPasswordToken);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { userId } = registrationData;
+
+    return this.changePassword(password, userId);
   }
 
   async changePassword(password: string, userId: string) {
@@ -231,6 +296,12 @@ export class AuthService {
 
   private getRegistrationData(registrationToken: string): BuildRegistrationTokenDto & { code: string } {
     const registrationData = this.jwtService.decode<BuildRegistrationTokenDto & { code: string }>(registrationToken);
+
+    return registrationData;
+  }
+
+  private getResetPasswordData(registrationToken: string) {
+    const registrationData = this.jwtService.decode(registrationToken);
 
     return registrationData;
   }
