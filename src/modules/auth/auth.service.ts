@@ -210,10 +210,6 @@ export class AuthService {
     const { code } = this.getResetPasswordData(resetPasswordToken);
     const isCodeMatch = await bcrypt.compare(inputCode, code);
 
-    console.log('inputCode', inputCode);
-    console.log('code', code);
-    console.log('isCodeMatch', isCodeMatch);
-
     if (!isCodeMatch) {
       throw new ForbiddenException('Неверный код');
     }
