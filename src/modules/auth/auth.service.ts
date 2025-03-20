@@ -217,7 +217,6 @@ export class AuthService {
 
   async setNewPassword(password: string, resetPasswordToken: string) {
     const registrationData = this.getResetPasswordData(resetPasswordToken);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { userId } = registrationData;
 
     return this.changePassword(password, userId);
