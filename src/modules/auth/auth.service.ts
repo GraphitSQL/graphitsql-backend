@@ -156,7 +156,6 @@ export class AuthService {
 
   async resendVerificationCode(registrationToken: string) {
     const registrationData = this.getRegistrationData(registrationToken);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { email, password, avatarColor, userName } = registrationData;
 
     return this.buildRegistrationToken({ email, password, avatarColor, userName });
@@ -200,7 +199,6 @@ export class AuthService {
 
   async resendResetPasswordCode(registrationToken: string) {
     const registrationData = this.getResetPasswordData(registrationToken);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { email } = registrationData;
 
     return this.buildResetPasswordToken(email);
