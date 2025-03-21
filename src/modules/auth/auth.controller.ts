@@ -9,6 +9,7 @@ import {
   Res,
   Logger,
   HttpCode,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
@@ -17,6 +18,8 @@ import { RefreshTokenGuard } from '../../common/guards/refresh-token.guard';
 
 import {
   ChangePasswordRequest,
+  GetResetPasswordTokenRequest,
+  GetResetPasswordTokenResponse,
   GetTokenForRegistrationRequest,
   GetTokenForRegistrationResponse,
   LoginRequest,
@@ -25,6 +28,8 @@ import {
   RegisterRequest,
   RegisterResponse,
   ResendVerificationCodeResponse,
+  VerifyResetPasswordTokenRequest,
+  VerifyResetPasswordTokenResponse,
 } from './auth.contracts';
 import { CurrentUser } from 'src/common/decorators';
 import { ContextUser, RequestResult } from 'src/common/types';
@@ -65,6 +70,53 @@ export class AuthController {
     }
 
     return this.authService.resendVerificationCode(registrationToken);
+  }
+
+  @Post('get-reset-password-token')
+  async getResetPasswordToken(@Body() data: GetResetPasswordTokenRequest): Promise<GetResetPasswordTokenResponse> {
+    return this.authService.buildResetPasswordToken(data.email);
+  }
+
+  @Get('resend-reset-password-verification-code')
+  async resendResetPasswordCode(@Req() req: Request): Promise<ResendVerificationCodeResponse> {
+    const resetPasswordToken = req.get('reset-password-token');
+
+    if (!resetPasswordToken) {
+      throw new UnauthorizedException('Доступ запрещен');
+    }
+
+    return this.authService.resendResetPasswordCode(resetPasswordToken);
+  }
+
+  @Post('verify-reset-password-code')
+  async verifyResetPasswordCode(
+    @Req() req: Request,
+    @Body() data: VerifyResetPasswordTokenRequest,
+  ): Promise<VerifyResetPasswordTokenResponse> {
+    const resetPasswordToken = req.get('reset-password-token');
+
+    console.log('resetPasswordToken');
+
+    if (!resetPasswordToken) {
+      throw new UnauthorizedException('Доступ запрещен');
+    }
+
+    await this.authService.validateResetPasswordToken(resetPasswordToken, data.code);
+
+    return 'OK';
+  }
+
+  @Patch('set-new-password')
+  async setNewPassword(@Req() req: Request, @Body() data: ChangePasswordRequest): Promise<RequestResult> {
+    const resetPasswordToken = req.get('reset-password-token');
+
+    if (!resetPasswordToken) {
+      throw new UnauthorizedException('Доступ запрещен');
+    }
+
+    await this.authService.setNewPassword(data.newPassword, resetPasswordToken);
+
+    return 'OK';
   }
 
   @Post('login')
