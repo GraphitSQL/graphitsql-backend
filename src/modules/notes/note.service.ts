@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, IsNull, Not, Repository, UpdateResult } from 'typeorm';
 
 import { NoteEntity } from './note.entity';
 import { ProjectUserService } from '../projects/project-user/project-user.service';
@@ -69,6 +69,9 @@ export class NoteService {
     return this.notesRepository.findAndCount({
       where: {
         projectId,
+        createdBy: {
+          id: Not(IsNull()),
+        },
       },
       select: {
         id: true,
