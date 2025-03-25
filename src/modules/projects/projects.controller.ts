@@ -174,7 +174,6 @@ export class ProjectsController {
     return 'OK';
   }
 
-
   @Delete(':id/members/delete/:memberId')
   async deleteProjectMember(
     @Param('memberId') memberId: string,

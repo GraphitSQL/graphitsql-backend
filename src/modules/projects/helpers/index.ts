@@ -13,7 +13,7 @@ export function buildListProjectResponse(data: ProjectUserEntity): PreResolution
       createdBy: {
         id: data.project.createdBy.id,
         displayName: data.project.createdBy.displayName,
-        avatarColor: data.project.createdBy.avatarColor,
+        avatarColor: data.project.createdBy?.avatarColor,
       },
     }),
   };
@@ -39,8 +39,8 @@ export function buildProjectResponse(data: ProjectEntity): PreResolutionListProj
 export function buildProjectMembersListResponse(data: ProjectUserEntity): ProjectMember {
   return {
     id: data.id,
-    displayName: data.user.displayName,
-    avatarColor: data.user.avatarColor,
+    displayName: data.user?.displayName,
+    avatarColor: data.user?.avatarColor,
     isOwner: data.project.createdById === data.user.id,
     userId: data.user.id,
   };

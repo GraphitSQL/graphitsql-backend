@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { DataSource, DeleteResult, FindOneOptions, ILike, Repository } from 'typeorm';
+import { DataSource, DeleteResult, FindOneOptions, ILike, IsNull, Not, Repository } from 'typeorm';
 import { ProjectUserEntity } from './project-user.entity';
 import { getRepository } from 'src/common/helpers';
 import { Transactional } from 'src/common/types';
@@ -111,6 +111,9 @@ export class ProjectUserService {
     return this.projectsUsersRepository.findAndCount({
       where: {
         projectId,
+        user: {
+          id: Not(IsNull()),
+        },
       },
       select: {
         id: true,
@@ -122,6 +125,7 @@ export class ProjectUserService {
           displayName: true,
           avatarColor: true,
         },
+        userId: true,
       },
       relations: ['project', 'user'],
       skip,
